@@ -27,9 +27,17 @@ def get_ALM_forecasts():
 
     post_request_object = request.get_json(force=True)
 
-    #model1, model2 = "BayesianRidge", "GradientBoostingRegressor"
-    model1, model2 = "BayesianRidge", "BayesianRidge"
+    models_all = ['RidgeCV', 'LassoCV', 'BayesianRidge', 'RandomForestRegressor', 
+                  'GradientBoostingRegressor', 'AdaBoostRegressor', 'LightGBM', 'MLPRegressor',
+                  'ElasticNetCV', 'CatBoostRegressor', 'KNeighborsRegressor', 'LinearRegression', 'MultiPolynom']
     
+    model1, model2 = "MultiPolynom", "BayesianRidge"
+    
+    if post_request_object['model1'] in models_all:
+        model1 = post_request_object['model1']
+    if post_request_object['model2'] in models_all:
+        model2 = post_request_object['model2']
+        
     py_response = {}
     rates_delta_forecast, mrktShare_delta_forecast = [], []
 
@@ -53,8 +61,9 @@ def get_ALM_forecasts():
 
         mrktShare_delta_forecast.append(np.float(modelFitted2.predict(mrktShare_input.reshape(-1,2))))
         
-    rates_forecast = np.array(post_request_object['rates_fact']) + rates_delta_forecast
-    mrktShare_forecast = np.array(post_request_object['mrktShare_fact']) + mrktShare_delta_forecast
+    # I MULTIPLY BY 5 TO INCREASE CHANGE!!
+    rates_forecast = np.array(post_request_object['rates_fact']) + rates_delta_forecast*5
+    mrktShare_forecast = np.array(post_request_object['mrktShare_fact']) + mrktShare_delta_forecast*5
 
     py_response['rates_delta_forecast'] = list(rates_delta_forecast)
     py_response['mrktShare_delta_forecast'] = list(mrktShare_delta_forecast)
