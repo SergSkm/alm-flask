@@ -62,7 +62,7 @@ def get_ALM_forecasts():
         mrktShare_delta_forecast.append(np.float(modelFitted2.predict(mrktShare_input.reshape(-1,2))))
         
     # I MULTIPLY BY 5 TO INCREASE CHANGE!!
-    rates_forecast = np.array(post_request_object['rates_fact']) + np.array(rates_delta_forecast)*5
+    rates_forecast = np.array(post_request_object['rates_fact']) + np.array(rates_delta_forecast)
     mrktShare_forecast = np.array(post_request_object['mrktShare_fact']) + np.array(mrktShare_delta_forecast)*5
 
     py_response['rates_delta_forecast'] = list(rates_delta_forecast)
