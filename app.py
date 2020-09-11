@@ -34,7 +34,7 @@ def get_ALM_forecasts():
     rates_delta_forecast, mrktShare_delta_forecast = [], []
 
     for tenor, rates_input in zip(['1w', '2w', '3w', '1m', '2m', '3m', '6m'], 
-                                  np.stack((post_request_object['ftp_delta'],
+                                  np.stack((post_request_object['ftp_delta_shocked'],
                                             post_request_object['mosprime_delta'],
                                             post_request_object['limit_delta']), axis=1)):
 
