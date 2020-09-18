@@ -31,7 +31,8 @@ def get_ALM_forecasts():
                   'GradientBoostingRegressor', 'AdaBoostRegressor', 'LightGBM', 'MLPRegressor',
                   'ElasticNetCV', 'CatBoostRegressor', 'KNeighborsRegressor', 'LinearRegression', 'MultiPolynom']
     
-    model1, model2 = "MultiPolynom", "BayesianRidge"
+    #model1, model2 = "MultiPolynom", "BayesianRidge"
+    model1, model2 = "LinearRegression", "LinearRegression"
     
     if post_request_object['model1'] in models_all:
         model1 = post_request_object['model1']
