@@ -119,8 +119,15 @@ def get_ALM_forecasts():
 
     # adding back differences between shocked case and zero-shock case:
     rates_forecast_difference = np.array(rates_delta_forecast) - np.array(rates_delta_forecast_base)
+    #mrktShare_forecast_difference = np.array(mrktShare_delta_forecast) - np.array(mrktShare_delta_forecast_base)
     mrktShare_forecast_difference = np.array(mrktShare_delta_forecast) - np.array(mrktShare_delta_forecast_base)
-
+    mrktShare_forecast_difference = adjust_MrktShareDelta_To0(mrktShare_forecast_difference)
+    #________________________________________________#
+    # Adjustment function adjust_MrktShare_To100() although monotonous is not smooth enough for the final result!!
+    # I should think of improvement!
+    #________________________________________________#
+    
+    
     rates_forecast = np.array(post_request_object['rates_fact']) + rates_forecast_difference
     mrktShare_forecast = np.array(post_request_object['mrktShare_fact']) + mrktShare_forecast_difference
 
@@ -129,7 +136,8 @@ def get_ALM_forecasts():
     py_response['mrktShare_delta_forecast'] = list(mrktShare_delta_forecast)
 
     py_response['rates_forecast'] = list(rates_forecast)
-    py_response['mrktShare_forecast'] = adjust_MrktShare_To100(mrktShare_forecast)
+    #py_response['mrktShare_forecast'] = adjust_MrktShare_To100(mrktShare_forecast)
+    py_response['mrktShare_forecast'] = list(mrktShare_forecast)
     
     return(str(py_response))
     
@@ -146,7 +154,12 @@ def adjust_MrktShare_To100(mrktShare_forecast):
     
     return list(ajdustment_table['adjusted'])
     
+def adjust_MrktShareDelta_To0(mrktShare_forecast_difference):
     
+    weights = []
+    weights = adjust_MrktShare_To100(mrktShare_forecast_difference)
+
+    return mrktShare_forecast_difference - np.multiply(weights, mrktShare_forecast_difference)
     
     
 if __name__=='__main__':
