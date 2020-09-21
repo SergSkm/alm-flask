@@ -26,22 +26,44 @@ np.random.seed(123)
 def get_ALM_forecasts():
 
     post_request_object = request.get_json(force=True)
-
+    
+    py_response = {}
+    
     models_all = ['RidgeCV', 'LassoCV', 'BayesianRidge', 'RandomForestRegressor', 
                   'GradientBoostingRegressor', 'AdaBoostRegressor', 'LightGBM', 'MLPRegressor',
                   'ElasticNetCV', 'CatBoostRegressor', 'KNeighborsRegressor', 'LinearRegression', 'MultiPolynom']
-    
-    #model1, model2 = "MultiPolynom", "BayesianRidge"
     model1, model2 = "LinearRegression", "LinearRegression"
     
     if post_request_object['model1'] in models_all:
         model1 = post_request_object['model1']
     if post_request_object['model2'] in models_all:
         model2 = post_request_object['model2']
-        
-    py_response = {}
-    rates_delta_forecast, mrktShare_delta_forecast = [], []
 
+
+    rates_delta_forecast, rates_delta_forecast_base, mrktShare_delta_forecast = [], [], []
+
+    
+#     # Case 1. General forecasts
+#     for tenor, rates_input in zip(['1w', '2w', '3w', '1m', '2m', '3m', '6m'], 
+#                                   np.stack((post_request_object['ftp_delta_shocked'],
+#                                             post_request_object['mosprime_delta'],
+#                                             post_request_object['limit_delta']), axis=1)):
+
+#         modelFitted1 = pickle.load( open("alm_flask_TEST/models/model1/" + model1 + "/" + \
+#                                      post_request_object['sector'] + "_" + tenor + ".pkl", "rb" )) 
+
+#         rates_delta_forecast.append(np.float(modelFitted1.predict(rates_input.reshape(-1,3))))
+
+#     for tenor, mrktShare_input in zip(['1w', '2w', '3w', '1m', '2m', '3m', '6m'], 
+#                                   np.stack((post_request_object['mosprime_delta'], 
+#                                             rates_delta_forecast), axis=1)):
+
+#         modelFitted2 = pickle.load( open("alm_flask_TEST/models/model2/" + model2 + "/" + \
+#                                      post_request_object['sector'] + "_" + tenor + ".pkl", "rb" )) 
+
+#         mrktShare_delta_forecast.append(np.float(modelFitted2.predict(mrktShare_input.reshape(-1,2))))
+        
+    # Case 2. Difference between shocked case and zer0-shock case is added to the fact!
     for tenor, rates_input in zip(['1w', '2w', '3w', '1m', '2m', '3m', '6m'], 
                                   np.stack((post_request_object['ftp_delta_shocked'],
                                             post_request_object['mosprime_delta'],
@@ -52,17 +74,29 @@ def get_ALM_forecasts():
 
         rates_delta_forecast.append(np.float(modelFitted1.predict(rates_input.reshape(-1,3))))
 
+    for tenor, rates_input in zip(['1w', '2w', '3w', '1m', '2m', '3m', '6m'], 
+                                  np.stack((post_request_object['ftp_delta'],
+                                            post_request_object['mosprime_delta'],
+                                            post_request_object['limit_delta']), axis=1)):
 
+        modelFitted1 = pickle.load( open("models/model1/" + model1 + "/" + \
+                                     post_request_object['sector'] + "_" + tenor + ".pkl", "rb" )) 
+
+        rates_delta_forecast_base.append(np.float(modelFitted1.predict(rates_input.reshape(-1,3)))) 
+        
     for tenor, mrktShare_input in zip(['1w', '2w', '3w', '1m', '2m', '3m', '6m'], 
                                   np.stack((post_request_object['mosprime_delta'], 
-                                            rates_delta_forecast), axis=1)):
+                                            np.array(rates_delta_forecast) - np.array(rates_delta_forecast_base)), 
+                                           axis=1)):
 
         base_directory = "models/model2/" + model2 + "/" + post_request_object['sector'] + "_"
         modelFitted2 = pickle.load(open(base_directory + tenor + ".pkl", "rb" )) 
 
-        mrktShare_delta_forecast.append(np.float(modelFitted2.predict(mrktShare_input.reshape(-1,2))))
+        mrktShare_delta_forecast.append(np.float(modelFitted2.predict(mrktShare_input.reshape(-1,2))))  
         
-    # I MULTIPLY BY 5 TO INCREASE CHANGE!!
+        
+        
+    # I MULTIPLY BY 5 TO MAGNIFY CHANGE!!
     rates_forecast = np.array(post_request_object['rates_fact']) + np.array(rates_delta_forecast)
     mrktShare_forecast = np.array(post_request_object['mrktShare_fact']) + np.array(mrktShare_delta_forecast)*5
 
