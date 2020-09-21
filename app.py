@@ -118,10 +118,10 @@ def get_ALM_forecasts():
         mrktShare_delta_forecast_base.append(np.float(modelFitted2.predict(mrktShare_input.reshape(-1,2))))   
 
     # adding back differences between shocked case and zero-shock case:
-    rates_forecast_difference = np.array(rates_delta_forecast) - np.array(rates_delta_forecast_base)
+    rates_forecast_difference = np.nan_to_num(np.array(rates_delta_forecast) - np.array(rates_delta_forecast_base))
     #mrktShare_forecast_difference = np.array(mrktShare_delta_forecast) - np.array(mrktShare_delta_forecast_base)
     mrktShare_forecast_difference = np.array(mrktShare_delta_forecast) - np.array(mrktShare_delta_forecast_base)
-    mrktShare_forecast_difference = adjust_MrktShareDelta_To0(mrktShare_forecast_difference)
+    mrktShare_forecast_difference = np.nan_to_num(np.array(adjust_MrktShareDelta_To0(mrktShare_forecast_difference)))
     #________________________________________________#
     # Adjustment function adjust_MrktShare_To100() although monotonous is not smooth enough for the final result!!
     # I should think of improvement!
