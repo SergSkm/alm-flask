@@ -121,7 +121,7 @@ def get_ALM_forecasts():
     rates_forecast_difference = np.nan_to_num(np.array(rates_delta_forecast) - np.array(rates_delta_forecast_base))
     #mrktShare_forecast_difference = np.array(mrktShare_delta_forecast) - np.array(mrktShare_delta_forecast_base)
     mrktShare_forecast_difference = np.array(mrktShare_delta_forecast) - np.array(mrktShare_delta_forecast_base)
-    mrktShare_forecast_difference = np.nan_to_num(np.array(adjust_MrktShareDelta_To0(mrktShare_forecast_difference)))
+    #mrktShare_forecast_difference = np.nan_to_num(np.array(adjust_MrktShareDelta_To0(mrktShare_forecast_difference)))
     #________________________________________________#
     # Adjustment function adjust_MrktShare_To100() although monotonous is not smooth enough for the final result!!
     # I should think of improvement!
